@@ -5,10 +5,10 @@ import { QuizContext } from "../contexts/quiz";
 const Quiz = () => {
   const [quizState, dispatch] = useContext(QuizContext);
   const apiUrl =
-    "https://opentdb.com/api.php?amount=10&encode=url3986";
+    "https://opentdb.com/api.php?amount=10&category=31&difficulty=easy&type=multiple&encode=url3986";
 
   useEffect(() => {
-    if (quizState.questions.length > 0) {
+    if (quizState.questions.length > 0 || quizState.error) {
       return;
     }
     console.log("on initialize");
@@ -18,11 +18,23 @@ const Quiz = () => {
       .then((data) => {
         console.log("data", data);
         dispatch({ type: "LOADED_QUESTIONS", payload: data.results });
+      })
+      .catch((err) => {
+        console.log("err", err.message);
+        dispatch({ type: "SERVER_ERROR", payload: err.message });
       });
   });
 
   return (
     <div className="quiz">
+      {quizState.error && (
+        <div className="results">
+          <div className="congratulations">Server error</div>
+          <div className="results-info">
+            <div>{quizState.error}</div>
+          </div>
+        </div>
+      )}
       {quizState.showResults && (
         <div className="results">
           <div className="congratulations">Congratulations</div>
